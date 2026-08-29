@@ -1,0 +1,3 @@
+export default function HomePage() {
+  return <main><header><p className="eyebrow">IdeaBin.ai</p><h1>What should you work on next?</h1><p>Capture ideas, structure them, connect them, score them, and convert the best opportunities into executable projects.</p></header><section className="grid"><article><h2>Inbox</h2><p>Capture a raw idea without losing the original thought.</p></article><article><h2>Portfolio</h2><p>Rank opportunities by leverage, speed, confidence, and value.</p></article><article><h2>Connections</h2><p>Find overlaps, shared capabilities, and ideas worth combining.</p></article></section></main>;
+}
