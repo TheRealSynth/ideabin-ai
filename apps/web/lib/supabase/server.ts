@@ -4,9 +4,9 @@ import { publicSupabaseEnv } from "./env";
 
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
-  const { url, anonKey } = publicSupabaseEnv();
+  const { url, publishableKey } = publicSupabaseEnv();
 
-  return createServerClient(url, anonKey, {
+  return createServerClient(url, publishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -17,8 +17,8 @@ export async function createSupabaseServerClient() {
             cookieStore.set(name, value, options),
           );
         } catch {
-          // Server Components cannot always write cookies. Session refresh
-          // will be finalized when auth routing/proxy is added.
+          // Server Components cannot write response cookies. The Next.js proxy
+          // refreshes the session and writes the cookies on the request path.
         }
       },
     },
