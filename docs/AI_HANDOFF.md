@@ -2,15 +2,15 @@
 
 ## Current production
 Base branch: `main`
-Baseline SHA: pending baseline commit
+Baseline SHA: `b1301e8ede657b0361d9254dd05d0f0fdd9f1411`
 
 ## Active missions
-Mission 1 will own database schema, Supabase helpers, and auth foundation on `chatgpt/database-core-v1`.
+Mission 1 owns database schema, Supabase helpers, and auth foundation on `chatgpt/database-core-v1`.
 
 ## Reserved future missions
 - Mission 2 `codex/idea-inbox-v1`: capture UI/API after Mission 1 schema contract is stable.
 - Mission 3 `claude/ai-structuring-v1`: AI structuring adapter/schema after Mission 1 merge.
-- Mission 4 `chatgpt/scoring-engine-v1`: deterministic scoring can begin from baseline without modifying Mission 1-owned files.
+- Mission 4 `chatgpt/scoring-engine-v1`: deterministic scoring may run in parallel from baseline if it does not touch Mission 1 files.
 
 ## High-conflict ownership
 Mission 1: `supabase/migrations/**`, `apps/web/lib/supabase/**`, auth middleware/config.
