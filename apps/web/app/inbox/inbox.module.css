@@ -1,0 +1,239 @@
+.page {
+  min-height: 100dvh;
+  padding: 20px 16px 40px;
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 34%),
+    radial-gradient(circle at 80% 0%, rgba(217, 119, 6, 0.12), transparent 28%),
+    linear-gradient(180deg, #f8fafc 0%, #f4f1ea 100%);
+}
+
+.shell {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+}
+
+.hero {
+  padding: 8px 4px 0;
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #0f766e;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(2.2rem, 6vw, 4.2rem);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  color: #0f172a;
+  max-width: 12ch;
+}
+
+.lede {
+  margin: 14px 0 0;
+  max-width: 60ch;
+  color: #475569;
+  font-size: 1.05rem;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.84);
+  backdrop-filter: blur(18px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 28px;
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.cardInner {
+  padding: 18px;
+  display: grid;
+  gap: 18px;
+}
+
+.fieldGroup {
+  display: grid;
+  gap: 14px;
+}
+
+.label {
+  display: grid;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.optionalLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hint {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.textarea,
+.input {
+  width: 100%;
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  color: #0f172a;
+  font: inherit;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+
+.textarea {
+  min-height: 240px;
+  resize: vertical;
+  padding: 18px;
+  line-height: 1.55;
+}
+
+.input {
+  padding: 14px 16px;
+}
+
+.textarea:focus,
+.input:focus {
+  outline: none;
+  border-color: rgba(15, 118, 110, 0.42);
+  box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+}
+
+.sourceGrid {
+  display: grid;
+  gap: 14px;
+}
+
+.actions {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+
+.primaryButton,
+.secondaryButton,
+.ghostButton {
+  appearance: none;
+  border: 0;
+  border-radius: 18px;
+  min-height: 52px;
+  padding: 14px 18px;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    opacity 140ms ease,
+    background 140ms ease;
+}
+
+.primaryButton {
+  color: #ffffff;
+  background: linear-gradient(135deg, #0f766e, #115e59);
+  box-shadow: 0 14px 30px rgba(15, 118, 110, 0.24);
+}
+
+.secondaryButton {
+  color: #0f172a;
+  background: rgba(226, 232, 240, 0.9);
+}
+
+.ghostButton {
+  color: #0f766e;
+  background: transparent;
+  min-height: 44px;
+  padding-inline: 10px;
+}
+
+.primaryButton:hover,
+.secondaryButton:hover,
+.ghostButton:hover {
+  transform: translateY(-1px);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled,
+.ghostButton:disabled {
+  cursor: progress;
+  opacity: 0.62;
+  transform: none;
+}
+
+.status {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.statusError {
+  border-color: rgba(220, 38, 38, 0.2);
+  background: rgba(254, 242, 242, 0.96);
+}
+
+.statusSuccess {
+  border-color: rgba(22, 163, 74, 0.18);
+  background: rgba(240, 253, 244, 0.96);
+}
+
+.statusTitle {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.statusBody {
+  margin: 0;
+  color: #475569;
+}
+
+.statusActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+@media (min-width: 720px) {
+  .page {
+    padding: 28px 20px 56px;
+  }
+
+  .cardInner {
+    padding: 24px;
+    gap: 20px;
+  }
+
+  .sourceGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .secondaryButton {
+    grid-column: 2;
+  }
+}
