@@ -52,6 +52,14 @@ Frozen mission base: `7790953cf0d39924c0082ba8511e961e76910990`
 
 Mission 3 is actively executing. Do **not** rebase or merge current `main` into this branch mid-mission merely because Mission 4 has merged. Complete the owned mission against the frozen base, report the final head, then reconcile during integration review.
 
+Status: implementation complete (new `packages/ai-structuring` domain
+package + `apps/web/lib/ai/structure-idea.ts` integration); typecheck/tests/
+build green; 100-fixture harness built and run offline (no live provider
+credentials in the implementing environment — see `docs/AI_STRUCTURING.md`
+for the honest breakdown of offline-plumbing vs. live-model results). PR
+open, not merged; independent of Mission 2 and Mission 4 per the ownership
+split below.
+
 Owns:
 - AI provider/router adapters
 - structuring schema/service

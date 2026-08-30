@@ -1,0 +1,14 @@
+{
+  "mode": "offline",
+  "providerId": "offline-heuristic",
+  "model": "offline-heuristic-v1",
+  "totalFixtures": 100,
+  "firstPassValidCount": 100,
+  "repairPassValidCount": 0,
+  "finalValidCount": 100,
+  "finalValidPercent": 100,
+  "failures": [],
+  "totalInputTokens": 19760,
+  "totalOutputTokens": 26884,
+  "totalLatencyMs": 100
+}
