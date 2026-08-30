@@ -40,6 +40,14 @@ Owner: Claude Code
 Branch: `claude/ai-structuring-v1`
 Issue: #3
 
+Status: implementation complete (new `packages/ai-structuring` domain
+package + `apps/web/lib/ai/structure-idea.ts` integration); typecheck/tests/
+build green; 100-fixture harness built and run offline (no live provider
+credentials in the implementing environment — see `docs/AI_STRUCTURING.md`
+for the honest breakdown of offline-plumbing vs. live-model results). PR
+open, not merged; independent of Mission 2 and Mission 4 per the ownership
+split below.
+
 Owns:
 - AI provider/router adapters
 - structuring schema/service
