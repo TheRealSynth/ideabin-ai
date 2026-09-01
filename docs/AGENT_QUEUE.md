@@ -1,61 +1,82 @@
-# IdeaBin.ai V1 Agent Queue
+# IdeaBin.ai V1 Product Mission Roadmap
 
-This file is the canonical execution queue. Agents must also obey `AGENTS.md`, `CLAUDE.md` when applicable, `docs/AI_HANDOFF.md`, and the relevant mission file.
+This file defines IdeaBin product sequencing and dependency intent. It is **not** an independent worker scheduler when Agent Mission Control is active.
 
-## Operating rule
+Agents must also obey `AGENTS.md`, `CLAUDE.md` when applicable, `docs/AI_HANDOFF.md`, and the relevant mission specification.
 
-Resolve `origin/main` at mission start. Never assume a SHA in an old chat is still current. One mission = one branch = one PR. Do not merge without explicit owner authorization.
+## Execution authority
 
-The table state is a coordination hint, not a stale lock. **Runtime dependency truth wins:** if a mission is shown as BLOCKED but every dependency listed for it is already merged into current `origin/main`, treat that mission as READY immediately. If a task is blocked by an unmet dependency, do not improvise around it; move to the next eligible READY mission.
+- IdeaBin repository: product requirements, architecture, mission specifications, tests, and implementation source of truth.
+- `TheRealSynth/agent-mission-control`: portfolio priority, mission activation, worker assignment, leases, path/resource conflict prevention, and execution reconciliation.
+- Agents must not self-select the next IdeaBin mission from this file when an Agent Mission Control mission exists for that work.
+- Manual/direct execution from this roadmap requires an explicit owner assignment or a demonstrated Mission Control outage/blocker.
+- GitHub `main` remains canonical for IdeaBin implementation state.
 
-## Current verified state
+This boundary prevents IdeaBin from becoming a second Mission Control scheduler.
 
-- `main` after Mission 3 merge: `dffbfbd9430a2a84f1c1097eb98174af4369cc0e`
+## Product dependency rule
+
+Resolve current `origin/main` at mission start. Historical SHAs and stale status labels are evidence only. Product dependencies are satisfied by actual merged capability on `main`, but worker activation/ownership is controlled by Agent Mission Control.
+
+## Current foundation
+
 - Mission 1 — Database/Auth Foundation: MERGED / COMPLETE
 - Mission 4 — Deterministic Scoring: MERGED / COMPLETE
 - Mission 3 — AI Structuring: MERGED / COMPLETE via PR #8
-- Mission 3G — PR #8 review gate: COMPLETE; 65/65 tests, typecheck, build, and security/RLS review passed
-- Live-model >=90% fixture quality: UNVERIFIED; this is a default-enablement gate for live AI structuring, not a merge blocker for the deterministic/service plumbing
-- Mission 2R — Idea Inbox restart: READY; no fresh `codex/idea-inbox-v2` branch existed at the last verification
-- stale `codex/idea-inbox-v1`: do not reuse unless it is first proven to contain unique wanted implementation work
+- Mission 3G — PR #8 review gate: COMPLETE
+- live-model >=90% fixture quality: UNVERIFIED; this remains a default-enablement gate for live AI structuring
 
-## Queue
+## V1 product sequence and Mission Control mapping
 
-| Priority | Mission | Preferred owner | State | Dependency |
-|---|---|---|---|---|
-| 0A | Mission 3G — PR #8 review gate | Claude | COMPLETE | none |
-| 0B | Mission 2R — Idea Inbox restart | Codex | READY | none |
-| 1 | Mission 5 — Usable vertical slice | Claude | BLOCKED | Mission 2R merged; Mission 3 is already merged |
-| 2 | Mission 6 — Connections / semantic graph | Codex | BLOCKED | Mission 5 merged |
-| 3 | Mission 7 — Portfolio prioritization / decision queue / Today | Claude | BLOCKED | Mission 6 merged |
-| 4 | Mission 8 — Ask IdeaBin | Claude or Codex | BLOCKED | Mission 7 merged |
-| 5 | Mission 9 — Idea-to-project execution | Codex | BLOCKED | Mission 7 merged |
-| 6 | Mission 10 — Outcomes / calibration | Claude | BLOCKED | Mission 9 merged |
-| 7 | Mission 11 — 100-idea V1 commissioning | Claude + Codex verification | BLOCKED | Missions 8 and 10 merged |
+| Product step | IdeaBin mission spec | Mission Control mission | Dependency |
+|---|---|---|---|
+| Inbox / idea detail prerequisite | `docs/missions/MISSION_2R_IDEA_INBOX_RESTART.md` | `IDEA-UI-001` | current scoring review/reconciliation completed |
+| Mission 5 — usable vertical slice | `docs/missions/MISSION_5_VERTICAL_SLICE.md` | `IDEA-VSLICE-005` | `IDEA-UI-001` |
+| Mission 6 — connections / semantic graph | `docs/missions/MISSION_6_CONNECTIONS.md` | `IDEA-CONNECT-006` | `IDEA-VSLICE-005` |
+| Mission 7 — prioritization / Decision Queue / Today | `docs/missions/MISSION_7_PRIORITIZATION.md` | `IDEA-PRIORITY-007` | `IDEA-CONNECT-006` |
+| Mission 8 — Ask IdeaBin | `docs/missions/MISSION_8_ASK_IDEABIN.md` | `IDEA-ASK-008` | `IDEA-PRIORITY-007` |
+| Mission 9 — Promote to Execution | `docs/missions/MISSION_9_EXECUTION.md` | `IDEA-PROMOTE-001` | `IDEA-PRIORITY-007` |
+| Mission 10 — outcomes / calibration | `docs/missions/MISSION_10_LEARNING.md` | `IDEA-OUTCOME-010` | `IDEA-PROMOTE-001` |
+| Mission 11 — 100-idea V1 commissioning | `docs/missions/MISSION_11_COMMISSIONING.md` | `IDEA-COMMISSION-011` | `IDEA-ASK-008` + `IDEA-OUTCOME-010` |
 
-## Mission documents
+Mission 8 and Mission 9 may proceed independently after Mission 7 when Mission Control confirms path/resource compatibility. The project-level `max_active_workers` policy may still serialize them.
 
-- `docs/missions/MISSION_3G_STRUCTURING_REVIEW_GATE.md`
-- `docs/missions/MISSION_2R_IDEA_INBOX_RESTART.md`
-- `docs/missions/MISSION_5_VERTICAL_SLICE.md`
-- `docs/missions/MISSION_6_CONNECTIONS.md`
-- `docs/missions/MISSION_7_PRIORITIZATION.md`
-- `docs/missions/MISSION_8_ASK_IDEABIN.md`
-- `docs/missions/MISSION_9_EXECUTION.md`
-- `docs/missions/MISSION_10_LEARNING.md`
-- `docs/missions/MISSION_11_COMMISSIONING.md`
+## Mission 9 architecture change
 
-## Claim protocol
+Mission 9 no longer turns IdeaBin into a project/task execution manager.
 
-1. Fetch `origin/main` and inspect open PRs/branches before choosing work.
-2. Resolve each listed dependency against actual merged `origin/main` state.
-3. Choose the highest-priority READY mission compatible with the current agent. A BLOCKED row becomes READY automatically when all of its dependencies are actually merged.
-4. Confirm no open PR already owns that mission/branch namespace.
-5. Create the mission branch from current `origin/main` unless the mission file explicitly says otherwise.
-6. Work only the owned scope.
-7. Push, open/update one PR, and leave the mission handoff in the PR body.
-8. Never begin a genuinely blocked mission merely to stay busy. If no task is READY, review/test the earliest dependency without changing unrelated production code.
+IdeaBin owns:
+
+`idea -> evaluation -> recommendation -> explicit decision -> hypothesis -> success/failure criteria -> promotion`
+
+Agent Mission Control owns:
+
+`promotion -> execution project -> portfolio priority -> benchmark -> missions -> workers -> PR/deploy state -> actual outcomes`
+
+Canonical handoff contract:
+
+- `docs/PROMOTION_CONTRACT_V1.md`
+- `docs/schemas/promotion-contract-v1.schema.json`
+
+## Agent startup rule
+
+When assigned an IdeaBin mission by Agent Mission Control:
+
+1. fetch current `origin/main`;
+2. read the Mission Control mission ID and pinned scope;
+3. read the matching IdeaBin product mission specification;
+4. inspect open PRs/branches for conflicting or already-completed work;
+5. obey the Mission Control-owned path/resource reservation;
+6. implement only the product scope;
+7. run the mission's required tests/typecheck/build;
+8. push one deterministic mission branch/PR;
+9. write the required machine-readable result/receipt for Mission Control reconciliation;
+10. do not choose the next mission locally after completion.
 
 ## V1 exit definition
 
-V1 is not complete until 100 real ideas can complete `capture -> structure -> connect -> prioritize`, related/duplicate suggestions are materially useful, ranking is explainable, a selected idea converts to a project, predictions can be compared with actual outcomes, and portfolio-level questions work without opening ideas individually.
+V1 is not complete until 100 real ideas can complete the product flow, related/duplicate suggestions are materially useful, ranking is explainable, selected BUILD/VALIDATE decisions can promote into Mission Control execution, predictions can be compared with actual outcomes, and portfolio-level questions work without opening ideas individually.
+
+## Architectural invariant
+
+IdeaBin may recommend what deserves resources. It may not independently allocate Claude/Codex seats, manage worker leases, reserve repository paths, choose portfolio execution priority, or reconcile PR execution while Agent Mission Control is the active control plane.
