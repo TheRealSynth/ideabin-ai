@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ideabin.ai/schemas/promotion-contract-v1.schema.json",
+  "title": "IdeaBin Promotion Contract V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "protocol_version",
+    "promotion_id",
+    "idempotency_key",
+    "created_at",
+    "source",
+    "decision",
+    "project",
+    "validation",
+    "execution",
+    "provenance"
+  ],
+  "properties": {
+    "protocol_version": { "const": 1 },
+    "promotion_id": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "idempotency_key": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "created_at": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "idea_id", "evaluation_id", "recommendation_id", "decision_id"],
+      "properties": {
+        "system": { "const": "ideabin" },
+        "idea_id": { "type": "string", "minLength": 1 },
+        "evaluation_id": { "type": "string", "minLength": 1 },
+        "recommendation_id": { "type": "string", "minLength": 1 },
+        "decision_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "opportunity_score", "confidence"],
+      "properties": {
+        "action": { "enum": ["BUILD", "VALIDATE"] },
+        "opportunity_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 100 },
+        "suggested_priority": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW", "HOLD"] }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["proposed_slug", "title", "objective"],
+      "properties": {
+        "proposed_slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "objective": { "type": "string", "minLength": 1, "maxLength": 4000 }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hypothesis", "success_metric", "failure_criterion"],
+      "properties": {
+        "hypothesis": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "success_metric": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "target", "unit"],
+          "properties": {
+            "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+            "target": { "type": "number" },
+            "unit": { "type": "string", "minLength": 1, "maxLength": 80 }
+          }
+        },
+        "failure_criterion": { "type": "string", "minLength": 1, "maxLength": 4000 }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "repo_disposition", "first_benchmark", "known_blockers"],
+      "properties": {
+        "mode": { "enum": ["BUILD", "VALIDATE"] },
+        "repo_disposition": { "enum": ["existing_repo", "create_repo", "no_repo_validation"] },
+        "existing_repo": {
+          "type": ["string", "null"],
+          "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+        },
+        "first_benchmark": { "type": "string", "minLength": 1, "maxLength": 4000 },
+        "known_blockers": {
+          "type": "array",
+          "maxItems": 50,
+          "items": { "type": "string", "minLength": 1, "maxLength": 1000 }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "repo_disposition": { "const": "existing_repo" } },
+            "required": ["repo_disposition"]
+          },
+          "then": {
+            "required": ["existing_repo"],
+            "properties": { "existing_repo": { "type": "string" } }
+          }
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evaluation_source", "evidence_ids", "ai_run_ids"],
+      "properties": {
+        "evaluation_source": { "enum": ["user_entered", "user_confirmed", "mixed"] },
+        "evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "ai_run_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "decision": { "properties": { "action": { "const": "BUILD" } } } }
+      },
+      "then": {
+        "properties": { "execution": { "properties": { "mode": { "const": "BUILD" } } } }
+      }
+    },
+    {
+      "if": {
+        "properties": { "decision": { "properties": { "action": { "const": "VALIDATE" } } } }
+      },
+      "then": {
+        "properties": { "execution": { "properties": { "mode": { "const": "VALIDATE" } } } }
+      }
+    }
+  ]
+}
