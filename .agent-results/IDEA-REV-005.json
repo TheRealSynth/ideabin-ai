@@ -74,8 +74,8 @@
   "changed_paths": [
     ".agent-results/IDEA-REV-005.json"
   ],
-  "pr_number": null,
-  "pr_url": null,
+  "pr_number": 12,
+  "pr_url": "https://github.com/TheRealSynth/ideabin-ai/pull/12",
   "proposed_follow_up_missions": [
     "Update control-plane mission records to reference merged PR #7 instead of closed PR #5 as the canonical scoring source (see IDEA-REV-005-F1).",
     "Small hygiene mission: regenerate/commit pnpm-lock.yaml so it matches packages/core/package.json (see IDEA-REV-005-F2).",
