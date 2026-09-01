@@ -1,0 +1,85 @@
+{
+  "mission_id": "IDEA-REV-005",
+  "lease_id": "f822f1ec-9718-40d9-84a6-fec96c5bead1",
+  "worker": "claude-seat-1",
+  "target_repo": "TheRealSynth/ideabin-ai",
+  "target_branch": "claude/claude-seat-1/idea-rev-005",
+  "base_sha": "f16199a7aa6cfbbf9ae8e4e0ca227b77071fa633",
+  "final_sha": "f16199a7aa6cfbbf9ae8e4e0ca227b77071fa633",
+  "state": "DONE_PENDING_MERGE",
+  "benchmark_id": "IDEA-B1",
+  "benchmark_progress": "IDEA-B1 benchmark (independent verification of PR #5's scoring weights/clamping/non-finite handling/confidence separation/action gates/blocker precedence/regression) is satisfied against the current canonical implementation on origin/main. No blocking defects found; audit is complete and durable in this result artifact.",
+  "scope_note": "Mission title references 'scoring PR #5', but PR #5 (chatgpt/scoring-engine-v1 @ 7790953) is CLOSED/unmerged (draft, never merged). Its five validated files were replayed byte-for-byte as PR #7 (chatgpt/scoring-engine-v1 @ 9128cd6), which WAS merged into main as commit ad98088. Per AGENTS.md/docs/AI_HANDOFF.md ('agents must resolve current origin/main at runtime; old frozen SHAs are historical evidence, not permission to work from stale code'), this audit targets the current canonical implementation on main (packages/core/src/scoring.ts, packages/core/src/scoring.test.ts), which is the PR #5 content as actually shipped via PR #7.",
+  "tests": {
+    "reproduced_independently": true,
+    "method": "Ran the repo's own CI commands directly against current origin/main tip (pnpm install --frozen-lockfile=false; pnpm test; pnpm typecheck; pnpm build) rather than trusting the PR's self-reported results.",
+    "pnpm_test": "PASS - 76/76 total (11/11 packages/core scoring tests, 56/56 packages/ai-structuring, 9/9 apps/web)",
+    "pnpm_typecheck": "PASS - all 3 TypeScript packages (core, ai-structuring, web) clean",
+    "pnpm_build": "PASS - tsc --noEmit for core/ai-structuring, next build succeeded for apps/web",
+    "additional_manual_verification": [
+      "Weight sum in floating point: 0.15+0.15+0.10+0.10+0.15+0.15+0.10+0.10 === 1 exactly (no drift).",
+      "Each of the 8 dimensions independently isolated at value=100 reproduces its documented weight exactly (15/15/10/10/15/15/10/10) - confirms no weight transposition or drift.",
+      "clampScore(NaN)=0, clampScore(+Infinity)=0, clampScore(-Infinity)=0, clampScore(-50)=0, clampScore(500)=100 - all verified directly, not just via the existing test file.",
+      "Non-finite safety verified beyond the single existing test case: a -Infinity dimension and a NaN dimension each independently zero out only their own weighted contribution (e.g. all-100 with capitalEfficiency=-Infinity => 90 = 100-10; with marketTiming=NaN => 90 = 100-10) rather than corrupting the whole score or producing a false high score.",
+      "recommendationFor() also internally clamps its opportunityScore/confidence parameters, so passing non-finite context values (e.g. Infinity/Infinity) safely degrades to ARCHIVE rather than a false BUILD - extends the non-finite-safety property beyond just the 8 scoring dimensions.",
+      "Blocker precedence verified with combinations not present in the original test suite: structurallyWeakOrDominated=true AND informationGapPrimaryBlocker=true => KILL wins (matches documented precedence order 1-6); informationGapPrimaryBlocker=true AND timingOrDependencyBlocked=true => RESEARCH wins.",
+      "Confirmed via git log that packages/core/src/scoring.ts and scoring.test.ts have been touched by exactly one commit (ad98088, the PR #7 merge) in the repo's entire history - zero drift from subsequent Mission 3 (PR #8) or Mission 3.5 queue (PR #9) merges.",
+      "Confirmed the working branch HEAD is bit-identical to origin/main tip (f16199a) before running any acceptance commands."
+    ]
+  },
+  "builds": {
+    "install": "PASS (pnpm install --frozen-lockfile=false, matching .github/workflows/ci.yml exactly)",
+    "typecheck": "PASS",
+    "test": "PASS",
+    "production_build": "PASS (next build, apps/web)"
+  },
+  "verification_summary": {
+    "eight_weights_exact_match": "PASS - matches docs/SCORING_MODEL.md exactly (revenuePotential 15%, speedToValidation 15%, capitalEfficiency 10%, executionFeasibility 10%, existingAssetLeverage 15%, distributionAdvantage 15%, marketTiming 10%, strategicReuse 10%)",
+    "dimension_clamping_0_100": "PASS",
+    "non_finite_handling": "PASS - confirmed for NaN, +Infinity, -Infinity, both isolated per-dimension and combined; extends safely into recommendationFor()",
+    "confidence_score_separation": "PASS - opportunityScore() and recommendationFor() take/return fully independent values, no coupling",
+    "action_gates_build_validate_research_incubate_archive_kill": "PASS - all six implemented",
+    "blocker_precedence": "PASS - code order (KILL > RESEARCH > INCUBATE > BUILD > VALIDATE > ARCHIVE) exactly matches docs/SCORING_VALIDATION.md's documented precedence; verified with multi-blocker combinations beyond the existing unit tests",
+    "regression_against_current_canonical": "PASS - full independent re-run of install/typecheck/test/build at current main tip (f16199a, post Mission 3 + Mission 3.5 queue), not just at the original PR #7 merge point"
+  },
+  "defects_found": [],
+  "defects_fixed": [],
+  "non_blocking_followups": [
+    {
+      "id": "IDEA-REV-005-F1",
+      "severity": "low",
+      "category": "process/traceability",
+      "summary": "Mission/control record names 'PR #5' as the audit target, but PR #5 is closed/unmerged; the shipped implementation is PR #7 (merged, replaying the same 5 files from PR #5's branch onto a refreshed base). Recommend updating control-plane/mission references to cite PR #7 as the merged source of truth to avoid future confusion about which PR is canonical."
+    },
+    {
+      "id": "IDEA-REV-005-F2",
+      "severity": "low",
+      "category": "build-hygiene",
+      "summary": "pnpm-lock.yaml is out of sync with packages/core/package.json's devDependencies (@types/node, tsx, typescript): 'pnpm install --frozen-lockfile' fails. Not currently a real CI risk because .github/workflows/ci.yml explicitly runs 'pnpm install --frozen-lockfile=false', but a future stricter install mode would silently break. Recommend regenerating/committing an up-to-date lockfile."
+    },
+    {
+      "id": "IDEA-REV-005-F3",
+      "severity": "low",
+      "category": "documentation-gap",
+      "summary": "opportunityScore() rounds its weighted result to 1 decimal place (Math.round(score*10)/10) before any caller would compare it against the integer BUILD/VALIDATE thresholds (80/65). This is undocumented in docs/SCORING_MODEL.md and can nudge a raw value like 79.95 up to a compared 80.0, crossing the BUILD boundary purely from rounding. Not a defect in the audited functions (both are independently pure/tested and recommendationFor() takes score as an explicit parameter), but should be documented for whoever wires prediction storage/display so threshold semantics stay unambiguous."
+    },
+    {
+      "id": "IDEA-REV-005-F4",
+      "severity": "low",
+      "category": "documentation-gap",
+      "summary": "INCUBATE requires score >= 65 in code (timingOrDependencyBlocked && score >= 65), but neither docs/SCORING_MODEL.md nor docs/SCORING_VALIDATION.md states this numeric threshold explicitly (only 'strong potential'/'otherwise strong opportunities'). Recommend documenting the 65 threshold so the implementation stays traceable to spec."
+    }
+  ],
+  "blockers": [],
+  "changed_paths": [
+    ".agent-results/IDEA-REV-005.json"
+  ],
+  "pr_number": null,
+  "pr_url": null,
+  "proposed_follow_up_missions": [
+    "Update control-plane mission records to reference merged PR #7 instead of closed PR #5 as the canonical scoring source (see IDEA-REV-005-F1).",
+    "Small hygiene mission: regenerate/commit pnpm-lock.yaml so it matches packages/core/package.json (see IDEA-REV-005-F2).",
+    "Small documentation mission: add the INCUBATE score>=65 threshold and the opportunityScore() rounding behavior to docs/SCORING_MODEL.md (see IDEA-REV-005-F3, IDEA-REV-005-F4)."
+  ],
+  "completed_at": "2026-09-01T00:12:22Z"
+}
