@@ -5,13 +5,15 @@
 
 ## Current verified production state
 
-Current `main` after Mission 3 merge: `dffbfbd9430a2a84f1c1097eb98174af4369cc0e`
+Current product `main` after the owner-authorized Mission 5 merge: `e235a7922c80148d85c7558cd863786ef606a289`.
 
 - Mission 1 — Database/Auth Foundation: **MERGED / COMPLETE**
 - Mission 4 — Deterministic Scoring: **MERGED / COMPLETE** via PR #7
 - Mission 3 — AI Structuring: **MERGED / COMPLETE** via PR #8
-- Mission 3G — AI Structuring review gate: **COMPLETE / MERGE RECOMMENDED**, followed by owner-authorized merge of PR #8
-- Mission 2R — Idea Inbox restart: **READY / NOT YET CLAIMED** at last verification
+- Mission 3G — AI Structuring review gate: **COMPLETE**
+- Mission 2R — Idea Inbox restart: **MERGED / COMPLETE** via PR #15; merge commit `79a6d604e1653ee56235a6acc574c5a67a3b6af7`
+- Mission 5 — Usable vertical slice: **MERGED / COMPLETE** via PR #16; merge commit `e235a7922c80148d85c7558cd863786ef606a289`
+- Mission 6 — Connections / semantic graph: **PRODUCT DEPENDENCY SATISFIED / PREPARED**; activation and worker assignment remain owned by Agent Mission Control
 
 ## Foundation now on main
 
@@ -21,75 +23,68 @@ Current `main` after Mission 3 merge: `dffbfbd9430a2a84f1c1097eb98174af4369cc0e`
 - private Next.js/Supabase SSR authentication
 - immutable `ideas.raw_input`
 - append-only idea versions/evaluations/AI audit history
-- deterministic 0-100 opportunity scoring with eight weighted dimensions
-- confidence stored separately from score
-- BUILD / VALIDATE / RESEARCH / INCUBATE / ARCHIVE / KILL gates
-- provider-neutral AI structuring service
-- strict validated structuring schema
-- bounded one-repair-attempt AI pipeline
-- prompt-injection-isolated structuring prompt
-- OpenAI/OpenRouter adapters behind `StructuringProvider`
+- provider-neutral AI structuring service with schema validation and bounded repair
 - `structureIdea(ideaId)` RLS-scoped application integration contract
+- raw-first Inbox with Save Raw independent of AI availability
+- Save + Structure persists the raw idea before any AI call and leaves failures retryable
+- owner-scoped Idea Library and Idea Detail
+- explicit user-confirmed eight-dimension evaluation inputs with provenance
+- canonical deterministic opportunity scoring and recommendation gates
+- score, confidence, recommendation, raw user input, AI-derived fields, evaluation history, version history, and AI run history displayed as distinct data classes
+- re-evaluation creates a new evaluation snapshot rather than editing history
 
-## Mission 3 — AI Structuring final result
+## Mission 2R final result
 
-Merged PR: #8
-Merged main SHA: `dffbfbd9430a2a84f1c1097eb98174af4369cc0e`
-Reviewed head before merge: `eb6f6e18be7fbe34642d9cbcb39350e066cee283`
+Merged PR: #15
+Merged main SHA: `79a6d604e1653ee56235a6acc574c5a67a3b6af7`
 
-Mission 3G independently re-verified:
-- `pnpm test`: 65/65 passing
-- typecheck: pass
-- production build: pass
-- no RLS bypass/service-role use
-- no provider secret leakage to client code
-- no `ideas.raw_input` mutation
-- bounded retries only
-- malformed output cannot silently persist
-- no migration/auth/scoring scope creep
+The stale/conflicting PR #10 was closed without merge. Mission 2R was rebuilt from then-current `main`, preserving Mission 3 package/test wiring. Fresh PR CI passed before merge and the post-merge main CI also passed.
 
-### Remaining live-model gate
-The 100-fixture live-provider quality test remains unverified because no `OPENAI_API_KEY` or `OPENROUTER_API_KEY` was available in the implementing/review environments. This blocks **default production enablement of live AI structuring**, not the merged service plumbing. Do not report the >=90% target as achieved until a real provider run proves it.
+## Mission 5 final result
 
-### Known non-blocking follow-ups
-- `idea_versions.version_no` is currently client/application-computed and can race under concurrent structuring of the same idea.
-- An `idea_versions` insert failure after a successful `ideas` update is not surfaced as a distinct outcome.
+Merged PR: #16
+Merged main SHA: `e235a7922c80148d85c7558cd863786ef606a289`
+PR head validated before merge: `d161c370afaa1a52470704e97d977c44cdaa45df`
 
-These are recorded risks, not permission for unrelated missions to redesign schema.
+Mission 5 delivered:
 
-## Mission 2R — Idea Inbox
+`capture -> structure -> explicit user-confirmed evaluation inputs -> deterministic score -> recommendation -> inspect`
 
-Preferred owner: Codex
-Mission file: `docs/missions/MISSION_2R_IDEA_INBOX_RESTART.md`
-Required branch: fresh `codex/idea-inbox-v2` from current `origin/main`.
+Fresh PR CI passed install, typecheck, tests, and production build. No Supabase migration, auth/proxy code, canonical scoring formula, or provider/router contract was changed.
 
-At last verification, only stale `codex/idea-inbox-v1` existed; no fresh Mission 2R implementation branch or PR had been created.
+### Mission 5 known follow-up
+Evaluation persistence is currently multiple server-side writes: evaluation insert -> recommendation insert -> idea status update. Failures are surfaced and immutable rows are not edited, but a late-stage failure can leave a partial durable trail. Treat atomic persistence as a bounded future hardening item rather than silently assuming transactionality.
 
-Mission 2R is the sole READY implementation mission now.
+## Live-model quality gate
 
-## Mission 5 — Usable vertical slice
+The 100-fixture live-provider quality target remains **UNVERIFIED**. Existing offline/deterministic fixture success proves plumbing, not real-model quality. Do not report the >=90% live target as achieved until a real provider run proves it.
 
-Mission 5 is fully pre-specified in `docs/missions/MISSION_5_VERTICAL_SLICE.md` and should start immediately when Mission 2R is merged.
+## Deployment/runtime gate
 
-Runtime dependency rule: agents must derive readiness from actual `origin/main`. Once Mission 2R is merged, Mission 5 becomes READY automatically even if a stale queue table still says BLOCKED.
+Repository CI/build health is verified, but a connected IdeaBin Vercel project was not discoverable in the current hosting account at the latest check. Mobile/desktop browser behavior and the live Supabase/auth flow therefore remain runtime-unverified. See `docs/DEPLOYMENT_VERCEL.md` for the deployment contract and verification checklist.
 
-Mission 5 must connect:
-`capture -> structure -> explicit evaluation inputs -> deterministic score -> recommendation -> inspect`
+## Mission 6 — Connections / Semantic Graph
 
-Important scoring boundary: `opportunityScore()` is deterministic, but the eight numeric dimension inputs are not magically derivable from free text. Mission 5 must not invent them through undocumented keyword heuristics. Inputs must have an explicit source/provenance and confidence before the deterministic formula is called.
+Product dependency is satisfied because Mission 5 is merged. Mission file: `docs/missions/MISSION_6_CONNECTIONS.md`.
 
-## Remaining sequence
+Mission 6 should execute only when Agent Mission Control activates/assigns `IDEA-CONNECT-006`. The current portfolio control plane may keep IdeaBin paused while higher-priority CRS work is active; product readiness must not be confused with dispatch authorization.
 
-1. Mission 2R — Idea Inbox restart
-2. Mission 5 — Usable vertical slice
-3. Mission 6 — Connections / semantic graph
-4. Mission 7 — Portfolio prioritization / Decision Queue / Today
-5. Mission 8 — Ask IdeaBin
-6. Mission 9 — Idea-to-project execution
-7. Mission 10 — Outcomes / calibration
-8. Mission 11 — 100-idea V1 commissioning
+Required flow:
 
-Canonical queue: `docs/AGENT_QUEUE.md`.
+`structured idea -> embedding -> bounded owner-scoped nearest candidates -> validated relationship classification -> typed relationship rows -> Connections UI`
+
+Do not change canonical scoring, create execution/task-management behavior, or weaken owner isolation.
+
+## Remaining product sequence
+
+1. Mission 6 — Connections / semantic graph
+2. Mission 7 — Portfolio prioritization / Decision Queue / Today
+3. Mission 8 — Ask IdeaBin
+4. Mission 9 — Promote to Execution
+5. Mission 10 — Outcomes / calibration
+6. Mission 11 — 100-idea V1 commissioning
+
+Canonical product roadmap: `docs/AGENT_QUEUE.md`.
 
 ## High-conflict ownership
 
