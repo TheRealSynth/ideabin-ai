@@ -24,26 +24,32 @@ Resolve current `origin/main` at mission start. Historical SHAs and stale status
 - Mission 4 — Deterministic Scoring: MERGED / COMPLETE
 - Mission 3 — AI Structuring: MERGED / COMPLETE via PR #8
 - Mission 3G — PR #8 review gate: COMPLETE
+- Mission 2R — Idea Inbox: MERGED / COMPLETE via PR #15
+- Mission 5 — Usable vertical slice: MERGED / COMPLETE via PR #16
+- Mission 6 — Connections / semantic graph: PRODUCT DEPENDENCY SATISFIED / PREPARED; dispatch remains controlled by Agent Mission Control
 - live-model >=90% fixture quality: UNVERIFIED; this remains a default-enablement gate for live AI structuring
+- deployment/runtime commissioning: UNVERIFIED until a connected preview/production target is exercised
 
 ## V1 product sequence and Mission Control mapping
 
-| Product step | IdeaBin mission spec | Mission Control mission | Dependency |
-|---|---|---|---|
-| Inbox / idea detail prerequisite | `docs/missions/MISSION_2R_IDEA_INBOX_RESTART.md` | `IDEA-UI-001` | current scoring review/reconciliation completed |
-| Mission 5 — usable vertical slice | `docs/missions/MISSION_5_VERTICAL_SLICE.md` | `IDEA-VSLICE-005` | `IDEA-UI-001` |
-| Mission 6 — connections / semantic graph | `docs/missions/MISSION_6_CONNECTIONS.md` | `IDEA-CONNECT-006` | `IDEA-VSLICE-005` |
-| Mission 7 — prioritization / Decision Queue / Today | `docs/missions/MISSION_7_PRIORITIZATION.md` | `IDEA-PRIORITY-007` | `IDEA-CONNECT-006` |
-| Mission 8 — Ask IdeaBin | `docs/missions/MISSION_8_ASK_IDEABIN.md` | `IDEA-ASK-008` | `IDEA-PRIORITY-007` |
-| Mission 9 — Promote to Execution | `docs/missions/MISSION_9_EXECUTION.md` | `IDEA-PROMOTE-001` | `IDEA-PRIORITY-007` |
-| Mission 10 — outcomes / calibration | `docs/missions/MISSION_10_LEARNING.md` | `IDEA-OUTCOME-010` | `IDEA-PROMOTE-001` |
-| Mission 11 — 100-idea V1 commissioning | `docs/missions/MISSION_11_COMMISSIONING.md` | `IDEA-COMMISSION-011` | `IDEA-ASK-008` + `IDEA-OUTCOME-010` |
+| Product step | IdeaBin mission spec | Mission Control mission | Dependency | Product state |
+|---|---|---|---|---|
+| Inbox / idea detail prerequisite | `docs/missions/MISSION_2R_IDEA_INBOX_RESTART.md` | `IDEA-UI-001` | scoring review/reconciliation | COMPLETE |
+| Mission 5 — usable vertical slice | `docs/missions/MISSION_5_VERTICAL_SLICE.md` | `IDEA-VSLICE-005` | `IDEA-UI-001` | COMPLETE |
+| Mission 6 — connections / semantic graph | `docs/missions/MISSION_6_CONNECTIONS.md` | `IDEA-CONNECT-006` | `IDEA-VSLICE-005` | READY BY DEPENDENCY |
+| Mission 7 — prioritization / Decision Queue / Today | `docs/missions/MISSION_7_PRIORITIZATION.md` | `IDEA-PRIORITY-007` | `IDEA-CONNECT-006` | BLOCKED BY DEPENDENCY |
+| Mission 8 — Ask IdeaBin | `docs/missions/MISSION_8_ASK_IDEABIN.md` | `IDEA-ASK-008` | `IDEA-PRIORITY-007` | BLOCKED BY DEPENDENCY |
+| Mission 9 — Promote to Execution | `docs/missions/MISSION_9_EXECUTION.md` | `IDEA-PROMOTE-001` | `IDEA-PRIORITY-007` | BLOCKED BY DEPENDENCY |
+| Mission 10 — outcomes / calibration | `docs/missions/MISSION_10_LEARNING.md` | `IDEA-OUTCOME-010` | `IDEA-PROMOTE-001` | BLOCKED BY DEPENDENCY |
+| Mission 11 — 100-idea V1 commissioning | `docs/missions/MISSION_11_COMMISSIONING.md` | `IDEA-COMMISSION-011` | `IDEA-ASK-008` + `IDEA-OUTCOME-010` | BLOCKED BY DEPENDENCY |
+
+`READY BY DEPENDENCY` means the product prerequisite exists on IdeaBin `main`. It does **not** override Agent Mission Control project status, portfolio priority, worker availability, or path reservations.
 
 Mission 8 and Mission 9 may proceed independently after Mission 7 when Mission Control confirms path/resource compatibility. The project-level `max_active_workers` policy may still serialize them.
 
-## Mission 9 architecture change
+## Mission 9 architecture boundary
 
-Mission 9 no longer turns IdeaBin into a project/task execution manager.
+Mission 9 does not turn IdeaBin into a project/task execution manager.
 
 IdeaBin owns:
 
